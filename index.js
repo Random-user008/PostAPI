@@ -60,6 +60,8 @@ app.post("/posts/update",(req,res)=>{
     })
 })
 
+
+//Delete a post
 app.post("/posts/delete",(req,res)=>{
     const title = req.body.title;
     //const author = req.body.author;
