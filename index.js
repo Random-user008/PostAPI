@@ -1,0 +1,76 @@
+//Use PostMan to see the ouput
+
+const express = require('express');
+const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const Post = require("./src/models/post");
+
+const app = express();
+
+const db = mongoose.connect("mongodb://localhost:27017/nodeApi");
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended:false}));
+
+
+//Adding a post to database
+app.post('/posts',(req,res)=>{
+    const title = req.body.title;
+    const author = req.body.author;
+    const content = req.body.content;
+
+    var post = new Post();
+    post.title = title;
+    post.author = author;
+    post.content = content;
+    post.save((err,saved)=>{
+        if(err){
+            res.status(500).send({err:"Error"});
+        }else{
+            res.status(200).send(saved);
+        }
+    })
+});
+
+
+//Details of single Post
+app.get("/posts",(req,res)=>{
+    const title = req.body.title;
+    Post.findOne({"title":title},(error,posts)=>{
+        if(error){
+            res.status(422).send({error:"Post not found!!"});
+        }else{
+            res.status(200).send(posts);
+        }
+    })
+})
+
+
+//Update a Post 
+app.post("/posts/update",(req,res)=>{
+    const title = req.body.title;
+    //const author = req.body.author;
+    const content = req.body.content;
+    Post.findOneAndUpdate({"title":title},{"content":content},{new:true},(error,posts)=>{
+        if(error){
+            res.status(422).send({error:"Post not found!!"});
+        }else{
+            res.status(200).send(posts);
+        }
+    })
+})
+
+app.post("/posts/delete",(req,res)=>{
+    const title = req.body.title;
+    //const author = req.body.author;
+    //const content = req.body.content;
+    Post.findOneAndDelete({"title":title},(error,posts)=>{
+        if(error){
+            res.status(422).send({error:"Post not found!!"});
+        }else{
+            res.status(200).send("Post Deleted..."+posts);
+        }
+    })
+})
+
+app.listen(3001);
